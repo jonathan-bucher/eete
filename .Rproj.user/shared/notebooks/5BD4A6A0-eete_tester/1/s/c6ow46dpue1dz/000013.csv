@@ -1,0 +1,9 @@
+"0","devtools::document()"
+"1","[1m[33mError[39m in `package_file()`:[22m
+[38;5;232m[33m![38;5;232m Could not find package root.
+[36mℹ[38;5;232m Is ]8;;file:///Users/kairytales/Desktop/CAL POLY/FALL 2023/Research/.[34m.[38;5;232m]8;; inside a package?[39m
+Backtrace:
+[90m 1. [39m[1mdevtools[22m::document()
+[90m 2. [39mdevtools::as.package(pkg)
+[90m 3. [39m[1m[94mdevtools::package_file([39m[22mpath = x[1m[94m)[39m[22m
+"

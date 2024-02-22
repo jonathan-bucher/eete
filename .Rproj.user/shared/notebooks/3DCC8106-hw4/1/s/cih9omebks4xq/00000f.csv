@@ -1,0 +1,8 @@
+"0","odds_ratio = exp(predict(modLPM, newdata = data.frame(spread = 10), type = ""response""))"
+"0","odds_ratio"
+"1","       1 "
+"1","
+"
+"1","2.161072 "
+"1","
+"

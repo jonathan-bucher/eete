@@ -1,0 +1,13 @@
+Package: eete
+Type: Package
+Title: Estimate the Egalitarian Equivalent Treatment Effect (eete)
+Version: 0.1.0
+Author: Michelle Kairy
+Maintainer: The package maintainer <mkairy@calpoly.edu>
+Description: This package provides essential functions to calculate the
+    egalitarian equivalent treatment effect.
+License: 
+Encoding: UTF-8
+LazyData: true
+Imports: dplyr, boot
+RoxygenNote: 7.2.2
