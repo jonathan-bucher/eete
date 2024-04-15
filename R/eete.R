@@ -43,6 +43,14 @@ inverse_fun = function (f, lower = -100, upper = 100) {
 
 eete = function(inputFunction, ..., y, d, z = NULL, data, lower = 0.1, upper = 100, se = FALSE, B = 1000) {
 
+  data_test = data %>%
+    dplyr::select(!!sym(y))
+
+  if (is.character(inputFunction(data_test, ...))) {
+    eete = inputFunction(data_test, ...)
+
+  } else {
+
   fun_inverse = inverse_fun(function(x) inputFunction(x, ...), lower, upper)
 
   if (!is.null(z)) {
@@ -109,6 +117,6 @@ eete = function(inputFunction, ..., y, d, z = NULL, data, lower = 0.1, upper = 1
 
     eete = list(estimate = eete)
   }
-
+}
   return(eete)
 }

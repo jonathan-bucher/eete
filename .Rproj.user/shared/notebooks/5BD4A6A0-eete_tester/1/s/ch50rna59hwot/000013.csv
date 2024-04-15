@@ -1,6 +1,0 @@
-"0",""
-"0","SIPP1991 = read_dta('/Users/kairytales/Desktop/CAL POLY/FALL 2023/Research/ivreg_explore/MW17/Angrist1991/Angrist 1991 SIPP.dta')"
-"0","SIPP1991_edit <- SIPP1991 |>"
-"0","  mutate(rsncode = ifelse(rsncode == 999, NA, rsncode),"
-"0","         wage = kwage,"
-"0","         lwage = log(kwage))"
