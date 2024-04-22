@@ -9,5 +9,9 @@ Description: This package provides essential functions to calculate the
 License: 
 Encoding: UTF-8
 LazyData: true
-Imports: dplyr, boot
+Imports: dplyr, boot, haven
 RoxygenNote: 7.2.2
+Suggests:
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

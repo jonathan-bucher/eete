@@ -1,4 +1,4 @@
-#' Calculate values of the Constant Absolute Collateral Damage (CACD), or Kolm-Atkinson.
+#' Calculate values of Constant Difference Protected Income Evaluations (CDPIE), or Kolm-Atkinson.
 #'
 #' This function calculates the value of \eqn{g(x) = -e^{-\frac{x}{r}}} given a value for \eqn{r} or will calculate the value of \eqn{g(x) = -2^{-\frac{x}{L}}} given a value for \eqn{L}.
 #'
@@ -9,7 +9,7 @@
 #' @return A numeric or list of return values from the CACD utility function.
 #' @export
 
-ecacd = function(x, r = NULL, L = NULL){
+cdpie = function(x, r = NULL, L = NULL){
   if (is.null(r) & is.null(L)){
     val = "Please provide a value for r or L."
 
