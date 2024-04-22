@@ -10,6 +10,7 @@ vignette: >
 ---
 
 ```{r}
+#| message: false
 library(tidyverse)
 library(haven)
 library(eete)
@@ -81,6 +82,9 @@ eete(cdpie, r = 1, y = "lwage", d = "nvstat", z = "rsncode", data = SIPP1991_edi
 ### Documentation
 
 This function returns a data frame of the upper and lower bounds calculations.
+
+This function does not make adjustments for outliers. If you would prefer to make such adjustments, you can transform the data for outliers before using **ebounds**.
+
 
 -   **inputFunction** A function that will be applied to the data.
 -   **...** Additional arguments to be passed to `inputFunction`.
