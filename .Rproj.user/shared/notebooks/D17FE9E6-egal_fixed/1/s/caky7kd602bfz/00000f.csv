@@ -1,4 +1,0 @@
-"0","yz1 = SIPP1991_z1$wage"
-"0","yz0 = SIPP1991_z0$wage"
-"0","p1 = mean(SIPP1991_z1$nvstat, na.rm = TRUE)"
-"0","p0 = mean(SIPP1991_z0$nvstat, na.rm = TRUE)"
