@@ -1,4 +1,4 @@
-#' Calculate values of Constant Difference Protected Income Evaluations (CDPIE), or Kolm-Atkinson.
+#' Calculate values of Constant Difference Protected Income Evaluations (CDPIE), or Kolm-Pollak.
 #'
 #' This function calculates the value of \eqn{g(x) = -e^{-\frac{x}{r}}} given a value for \eqn{r} or will calculate the value of \eqn{g(x) = -2^{-\frac{x}{L}}} given a value for \eqn{L}.
 #'

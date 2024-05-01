@@ -1,4 +1,4 @@
-#' Calculate values of Constant Relative Protected Income Evaluations (CRPIE), or Kolm-Pollak.
+#' Calculate values of Constant Relative Protected Income Evaluations (CRPIE), or Kolm-Atkinson.
 #'
 #' This function calculates the value of \eqn{g(x) = \frac{x^{1-\gamma}}{1-\gamma}} given a value for \eqn{\gamma} or will calculate \eqn{g(x) = \log_2(k) x^{\frac{1}{\log_2(k)}}} if given a value for \eqn{k}.
 #' If \eqn{\gamma = 1} or \eqn{k = \infty}, the function will return \eqn{\log(x)}.
