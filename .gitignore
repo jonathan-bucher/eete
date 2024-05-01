@@ -4,9 +4,4 @@
 .Ruserdata
 /doc/
 /Meta/
-
-# Ignore MacOS system files
-.DS_Store
-
-# Ignore user-specific RStudio files
-.Rproj.user/
+.DS_Storeø
