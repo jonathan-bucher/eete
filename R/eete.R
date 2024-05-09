@@ -85,10 +85,12 @@ eete = function(inputFunction, ..., y, d, z = NULL, data, lower = 0.1, upper = 1
 
     ee = function(data, indices){
 
-      data1 = data %>%
+      bdata = data[indices,]
+
+      data1 = bdata %>%
         dplyr::filter(!!sym(d) == 1)
 
-      data0 = data %>%
+      data0 = bdata %>%
         dplyr::filter(!!sym(d) == 0)
 
       yz1 = data1[[y]]
