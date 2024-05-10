@@ -176,8 +176,8 @@ ELSE (if inputFunction did not return an error when used on y),
   ELSE (z is null, there is no IV),
     Define an ee function to be used for bootstrapping that takes data and indices as its inputs
       Subset the data set to only the bootstrap sample
-      Divide the bootstrap sample into 2 data sets: one where z = 1 and the other where z = 0
-      Define yz1 and yz0 as the y column in the data set where z = 1 and z = 0, respectively
+      Divide the bootstrap sample into 2 data sets: one where d = 1 and the other where d = 0
+      Define yz1 and yz0 as the y column in the data set where d = 1 and d = 0, respectively
       Define fee1 and fee0 as the mean of the transformed (by inputFunction) yz1 and yz0, respectively
       The return value is set as the difference between the inverse of fee1 and fee0 (using fun_inverse for inversion): (fun_inverse(fee1)$root - fun_inverse(fee0)$root)
 
