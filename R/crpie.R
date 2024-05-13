@@ -16,17 +16,21 @@ crpie = function(x, gam = NULL, k = NULL){
     val = "Please provide a value for gamma or k."
 
   } else if (!is.null(gam)){
-    if (gam != 1){
+    if (gam < 0){
+      val = "Values for gamma must be positive."
+    } else if (gam != 1){
       val = x^(1-gam)/(1-gam)
     }else{
       val =log(x)
     }
 
-  } else if (!is.null(k)){
-    if (k != Inf){
-      val = log2(k) * x^(1/(log2(k)))
+  } else {
+    if (k == 0){
+      val = log(x)
+    }else if (k >= 1 & k < 2){
+      val = "Values for k between 1 and 2 are not allowed."
     }else{
-      val =log(x)
+      val = log2(k) * x^(1/(log2(k)))
     }
   }
   return(val)
