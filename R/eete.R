@@ -41,7 +41,7 @@ inverse_fun = function (f, lower = -100, upper = 100) {
 #' eete_sqrt = eete(sqrt, y = "mpg", d = "vs", z = "am", data = mtcars)
 #' print(eete_sqrt)
 
-eete = function(inputFunction, ..., y, d, z = NULL, data, lower = 0.1, upper = 100, se = FALSE, B = 1000) {
+eete = function(inputFunction, ..., y, d, z = NULL, data, lower = 0.1, upper = 100, se = FALSE, B = 1000, inv = NULL) {
 
   data_test = data %>%
     dplyr::select(!!sym(y))
@@ -51,7 +51,13 @@ eete = function(inputFunction, ..., y, d, z = NULL, data, lower = 0.1, upper = 1
 
   } else {
 
-  fun_inverse = inverse_fun(function(x) inputFunction(x, ...), lower, upper)
+    if (is.null(inv)) {
+      fun_inverse = inverse_fun(function(x) inputFunction(x, ...), lower, upper)
+    } else {
+      fun_inverse = function(x) {
+        return(list(root = inv(x, ...)))
+      }
+    }
 
   if (!is.null(z)) {
 
@@ -79,6 +85,7 @@ eete = function(inputFunction, ..., y, d, z = NULL, data, lower = 0.1, upper = 1
 
     return(eete)
   }
+
 
 
   } else {

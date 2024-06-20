@@ -8,7 +8,7 @@
 #' @param x A numeric value or list.
 #' @param gam The value of gamma, the coefficient of relative risk aversion. This value is optional if a value for k is provided.
 #' @param k The value of k, the percent of income to protect. This value is optional if a value for gamma is provided.
-#' @return A numeric or list of return values from the CRRA utility function.
+#' @return A numeric or list of return values from the CRPIE utility function.
 #' @export
 
 crpie = function(x, gam = NULL, k = NULL){
@@ -31,6 +31,46 @@ crpie = function(x, gam = NULL, k = NULL){
       val = "Values for k between 1 and 2 are not allowed."
     }else{
       val = log2(k) * x^(1/(log2(k)))
+    }
+  }
+  return(val)
+}
+
+#' Calculate inverse values of Constant Relative Protected Income Evaluations (CRPIE), or Kolm-Atkinson.
+#'
+#' This function calculates the inverse values of CRPIE.
+#'
+#' Note: If \eqn{k < 1}, \eqn{k} represents the percent of income to protect. If \eqn{k > 1}, \eqn{k} represents the multiple person A must receive to sacrifice income of person B completely.
+#'
+#' @param x A numeric value or list.
+#' @param gam The value of gamma, the coefficient of relative risk aversion. This value is optional if a value for k is provided.
+#' @param k The value of k, the percent of income to protect. This value is optional if a value for gamma is provided.
+#' @return A numeric or list of return values from the CRPIE utility function.
+#' @export
+
+crpie_inv = function(x, gam = NULL, k = NULL){
+  if (is.null(gam) & is.null(k)){
+    val = "Please provide a value for gamma or k."
+
+  } else if (!is.null(gam)){
+    if (gam < 0){
+      val = "Values for gamma must be positive."
+
+      } else if (gam != 1){
+      val = (x*(1-gam))^(1/(1-gam))
+    }else{
+      val =exp(x)
+    }
+
+  } else {
+    if (k == 0){
+      val = exp(x)
+
+      }else if (k >= 1 & k < 2){
+      val = "Values for k between 1 and 2 are not allowed."
+
+      }else{
+      val = (x/(log2(k)))^(log2(k))
     }
   }
   return(val)

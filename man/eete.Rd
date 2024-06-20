@@ -14,7 +14,8 @@ eete(
   lower = 0.1,
   upper = 100,
   se = FALSE,
-  B = 1000
+  B = 1000,
+  inv = NULL
 )
 }
 \arguments{

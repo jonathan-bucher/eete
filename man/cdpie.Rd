@@ -2,7 +2,7 @@
 % Please edit documentation in R/cdpie.R
 \name{cdpie}
 \alias{cdpie}
-\title{Calculate values of Constant Difference Protected Income Evaluations (CDPIE), or Kolm-Atkinson.}
+\title{Calculate values of Constant Difference Protected Income Evaluations (CDPIE), or Kolm-Pollak.}
 \usage{
 cdpie(x, r = NULL, L = NULL)
 }
@@ -14,7 +14,7 @@ cdpie(x, r = NULL, L = NULL)
 \item{L}{The value of L. This parameter is optional if r is provided.}
 }
 \value{
-A numeric or list of return values from the CACD utility function.
+A numeric or list of return values from the CDPIE utility function.
 }
 \description{
 This function calculates the value of \eqn{g(x) = -e^{-\frac{x}{r}}} given a value for \eqn{r} or will calculate the value of \eqn{g(x) = -2^{-\frac{x}{L}}} given a value for \eqn{L}.

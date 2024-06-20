@@ -78,29 +78,36 @@ ebounds = function(inputFunction, ..., y, d, z, wgt = NULL, data, se = FALSE, B 
       UB_HM = Yb_u - Ya_l
       LB_HM = Yb_l - Ya_u
 
-      return(c(LB_ee_mono, UB_ee_mono, LB_ee_dom, LB_HM, UB_HM, y_ee1_lb, y_ee1_ub, Ya_l, Ya_u, Yb_l, Yb_u))
+      return(c(Ya_l, means$y_ee0, Ya_u, Yb_l, y_ee1_lb, means$y_11, Yb_u, y_ee1_ub))
     }
 
+    estimates = c(bounds(data, 1:nrow(data)))
 
-    all_results = data.frame(Names = c("LB_ee_mono", "UB_ee_mono", "LB_ee_dom", "LB_HM", "UB_HM",
-                                       "y_ee1_lb", "y_ee1_ub", "Ya_l", "Ya_u", "Yb_l", "Yb_u"),
-                             Estimate = c(bounds(data, 1:nrow(data))))
+    all_results = data.frame(Bounds = c("Horowitz and Manski", "Lee", "Chen and Flores"),
+                             ee_L_a = c(estimates[1], estimates[2], estimates[2]),
+                             ee_U_a = c(estimates[3], estimates[2], estimates[2]),
+                             ee_L_b = c(estimates[4], estimates[5], estimates[6]),
+                             ee_U_b = c(estimates[7], estimates[8], estimates[8]))
 
   if (se == TRUE) {
 
     boot_results = boot::boot(data, bounds, R = B)
 
-    all_results$SE = c(sd(boot_results$t[,1]),
-                       sd(boot_results$t[,2]),
-                       sd(boot_results$t[,3]),
-                       sd(boot_results$t[,4]),
-                       sd(boot_results$t[,5]),
-                       sd(boot_results$t[,6]),
-                       sd(boot_results$t[,7]),
-                       sd(boot_results$t[,8]),
-                       sd(boot_results$t[,9]),
-                       sd(boot_results$t[,10]),
-                       sd(boot_results$t[,11]))
+    all_results$ee_L_a_SE = c(sd(boot_results$t[,1]),
+                              sd(boot_results$t[,2]),
+                              sd(boot_results$t[,2]))
+
+    all_results$ee_U_a_SE = c(sd(boot_results$t[,3]),
+                              sd(boot_results$t[,2]),
+                              sd(boot_results$t[,2]))
+
+    all_results$ee_L_b_SE = c(sd(boot_results$t[,4]),
+                              sd(boot_results$t[,5]),
+                              sd(boot_results$t[,6]))
+
+    all_results$ee_U_b_SE = c(sd(boot_results$t[,7]),
+                              sd(boot_results$t[,8]),
+                              sd(boot_results$t[,8]))
 
 
   } else {
