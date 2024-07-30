@@ -4,12 +4,12 @@
 \alias{cpiee}
 \title{Calculate values of Constant Protected Income Elasticity Evaluations (CPIEE)}
 \usage{
-cpiee(x, nu, c)
+cpiee(x, eta, c)
 }
 \arguments{
 \item{x}{A numeric value or list.}
 
-\item{nu}{The value of nu.}
+\item{eta}{The value of eta.}
 
 \item{c}{The value of c.}
 }
@@ -17,5 +17,5 @@ cpiee(x, nu, c)
 A numeric or list of return values from the CPIEE utility function.
 }
 \description{
-This function calculates the value of \eqn{g(x) = \frac{(\ln\frac{x}{c})^{1-\nu}}{1-\nu}} given a value for \eqn{\nu \geq 0} and \eqn{\nu \neq 1} or will calculate the value of \ln\frac{x}{c} given a value \eqn{\nu = 1}.
+This function calculates the value of \eqn{g(x) = \frac{(\ln\frac{x}{c})^{1-\eta}}{1-\eta}} given a value for \eqn{\eta \geq 0} and \eqn{\eta \neq 1} or will calculate the value of \eqn{\ln\frac{x}{c}} given a value \eqn{\eta = 1}.
 }

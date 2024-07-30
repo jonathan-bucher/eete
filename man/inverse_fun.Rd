@@ -4,7 +4,7 @@
 \alias{inverse_fun}
 \title{Find the Inverse Function Value}
 \usage{
-inverse_fun(f, lower = -100, upper = 100)
+inverse_fun(f, lower, upper)
 }
 \arguments{
 \item{f}{A function for which the inverse value needs to be found.}

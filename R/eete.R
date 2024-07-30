@@ -12,9 +12,11 @@
 #' inv_sqrt(4) # Should find a value close to 2
 
 
-inverse_fun = function (f, lower = -100, upper = 100) {
-  function (y) uniroot((function (x) f(x) - y), lower = lower, upper = upper)[1]
+inverse_fun = function(f, lower, upper) {
+  function(y) uniroot((function(x) f(x) - y), lower = lower, upper = upper)$root
 }
+
+
 
 #' Estimate the Egalitarian Equivalent Treatment Effect (eete)
 #'
@@ -41,21 +43,49 @@ inverse_fun = function (f, lower = -100, upper = 100) {
 #' eete_sqrt = eete(sqrt, y = "mpg", d = "vs", z = "am", data = mtcars)
 #' print(eete_sqrt)
 
-eete = function(inputFunction, ..., y, d, z = NULL, data, lower = 0.1, upper = 100, se = FALSE, B = 1000, inv = NULL) {
+eete = function(f, ..., y, d, z = NULL, data, lower = 0.1, upper = 100, se = NULL, B = 1000, f_inv = NULL) {
+
+
 
   data_test = data %>%
     dplyr::select(!!sym(y))
 
-  if (is.character(inputFunction(data_test, ...))) {
-    eete = inputFunction(data_test, ...)
+  if (is.character(f(data_test, ...))) {
+    eete = f(data_test, ...)
+
 
   } else {
 
-    if (is.null(inv)) {
-      fun_inverse = inverse_fun(function(x) inputFunction(x, ...), lower, upper)
-    } else {
-      fun_inverse = function(x) {
-        return(list(root = inv(x, ...)))
+    se_function = NULL
+
+    if (any(identical(f, eete::crpie), identical(f, eete::cdpie), identical(f, eete::cpiee))) {
+
+      if (!is.null(f_inv)) {
+        f_inv = NULL
+      }
+      if (lower != 0.1 | upper != 100 | B != 1000){
+        message("B, lower, and upper parameters are options for custom functions, which require bootstrapped standard errors and uniroot inverses. These parameters will not affect eete::crpie, eete::cdpie, or eete::cpiee functions.")
+      }
+}
+    if (is.null(f_inv)) {
+
+      if (identical(f, eete::crpie)) {
+        f_inv = function(x) eete::crpie_inv(x, ...)
+        # INSERT SE CODE HERE
+        # se_function =
+
+      } else if (identical(f, eete::cdpie)) {
+        f_inv = function(x) eete::cdpie_inv(x, ...)
+        # INSERT SE CODE HERE
+        # se_function =
+
+      } else if (identical(f, eete::cpiee)) {
+        f_inv = function(x) eete::cpiee_inv(x, ...)
+        # INSERT SE CODE HERE
+        # se_function =
+
+      } else {
+        f_inv = inverse_fun(function(x) f(x, ...), lower, upper)
       }
     }
 
@@ -76,12 +106,12 @@ eete = function(inputFunction, ..., y, d, z = NULL, data, lower = 0.1, upper = 1
     p1 = mean(data1[[d]], na.rm = TRUE)
     p0 = mean(data0[[d]], na.rm = TRUE)
 
-    fee_p1 = mean(inputFunction(yz1, ...), na.rm = TRUE)
-    fee_p0 = mean(inputFunction(yz0, ...), na.rm = TRUE)
+    fee_p1 = mean(f(yz1, ...), na.rm = TRUE)
+    fee_p0 = mean(f(yz0, ...), na.rm = TRUE)
     fee1 = (((1 - p0) * fee_p1 - (1 - p1) * fee_p0) / (p1 - p0))
     fee0 = ((p1 * fee_p0 - p0 * fee_p1) / (p1 - p0))
 
-    eete = (fun_inverse(fee1)$root - fun_inverse(fee0)$root)
+    eete = (f_inv(fee1) - f_inv(fee0))
 
     return(eete)
   }
@@ -103,10 +133,10 @@ eete = function(inputFunction, ..., y, d, z = NULL, data, lower = 0.1, upper = 1
       yz1 = data1[[y]]
       yz0 = data0[[y]]
 
-      fee1 = mean(inputFunction(yz1, ...), na.rm = TRUE)
-      fee0 = mean(inputFunction(yz0, ...), na.rm = TRUE)
+      fee1 = mean(f(yz1, ...), na.rm = TRUE)
+      fee0 = mean(f(yz0, ...), na.rm = TRUE)
 
-      eete = (fun_inverse(fee1)$root - fun_inverse(fee0)$root)
+      eete = (f_inv(fee1) - f_inv(fee0))
 
       return(eete)
     }
@@ -115,16 +145,24 @@ eete = function(inputFunction, ..., y, d, z = NULL, data, lower = 0.1, upper = 1
 
   eete = ee(data, 1:nrow(data))
 
-  if (se == TRUE) {
-
-    boot_results = boot::boot(data, ee, R = B)
-    se = sd(boot_results$t)
-
-    eete = list(estimate = eete, se = se)
-
-  } else {
+  if (is.null(se)) {
 
     eete = list(estimate = eete)
+
+  } else if (se == TRUE) {
+
+
+    if (is.null(se_function)){
+      boot_results = boot::boot(data, ee, R = B)
+      se = sd(boot_results$t)
+
+      eete = list(estimate = eete, se = se)
+    } else {
+      # INSERT SE CODE HERE
+      #se = se_function()
+      eete = list(estimate = eete, se = se)
+    }
+
   }
 }
   return(eete)

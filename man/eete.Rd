@@ -5,7 +5,7 @@
 \title{Estimate the Egalitarian Equivalent Treatment Effect (eete)}
 \usage{
 eete(
-  inputFunction,
+  f,
   ...,
   y,
   d,
@@ -13,14 +13,12 @@ eete(
   data,
   lower = 0.1,
   upper = 100,
-  se = FALSE,
+  se = NULL,
   B = 1000,
-  inv = NULL
+  f_inv = NULL
 )
 }
 \arguments{
-\item{inputFunction}{A function that will be applied to the data.}
-
 \item{...}{Additional arguments to be passed to `inputFunction`.}
 
 \item{y}{The name of the outcome variable column in `data`.}
@@ -38,6 +36,8 @@ eete(
 \item{se}{Optional argument to calculate the standard error of the estimate with bootstrapping.}
 
 \item{B}{The number of iterations to be used in the standard error bootstrap.}
+
+\item{inputFunction}{A function that will be applied to the data.}
 }
 \value{
 The estimated egalitarian equivalent treatment effect.

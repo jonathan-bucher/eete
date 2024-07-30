@@ -3,6 +3,7 @@
 export(cdpie)
 export(cdpie_inv)
 export(cpiee)
+export(cpiee_inv)
 export(crpie)
 export(crpie_inv)
 export(ebounds)
