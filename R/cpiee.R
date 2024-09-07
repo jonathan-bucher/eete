@@ -10,8 +10,8 @@
 #' @export
 
 cpiee = function(x, eta, c) {
-  if (!all(c > x,  na.rm = TRUE)) {
-    stop("C must be greater than all values in X")
+  if (!all(x > c,  na.rm = TRUE)) {
+    stop("All values of X must be greater than c")
   }
   if (eta < 0) {
     stop("Please use eta >= 0.")
@@ -20,7 +20,7 @@ cpiee = function(x, eta, c) {
   if (eta != 1) {
     val = (log(abs(x) / c))^(1 - eta) / (1 - eta)
   } else if (eta == 1) {
-    val = log(abs(x) / c)
+    val = log(log(abs(x) / c))
   }
   return(val)
 }
@@ -44,7 +44,7 @@ cpiee_inv = function(x, eta, c) {
   if (eta != 1) {
     val = c * exp((x * (1 - eta))^(1 / (1 - eta)))
   } else if (eta == 1) {
-    val = c * exp(x)
+    val = c * exp(exp(x))
   }
 
   return(val)

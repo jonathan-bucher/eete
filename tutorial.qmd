@@ -66,14 +66,14 @@ cdpie(x = x, L = 10)
 
 If given a value for $\eta$ and $c$, *cpiee* calculates $$g(x) = \frac{(\ln\frac{x}{c})^{1-\eta}}{1-\eta}$$ given a value for $\eta \geq 0$ and $\eta \neq 1$
 
-Or will calculate the value of $$\ln\frac{x}{c}$$ given a value $\eta = 1$.
+Or will calculate the value of $$\ln\left({\ln\left(\frac{x}{c}\right)}\right)$$ given a value $\eta = 1$.
 
-*Note: C must be greater than all values in X*
+*Note: All values of X must be greater than c*
 
 ```{r}
 x = c(5,6,7)
 
-cpiee(x = x, eta = 2, c = 10)
+cpiee(x = x, eta = 2, c = 2)
 ```
 
 ## Egalitarian Equivalent Treatment Effect (EETE)
@@ -83,7 +83,7 @@ To calculate the EETE of treatment $d$ on outcome $y$ given the inequality avers
 ```{r}
 eete(crpie, gam = 2, y = "lwage", d = "nvstat", data = data)
 eete(cdpie, r = 2, y = "lwage", d = "nvstat", data = data)
-eete(cpiee, eta = 2, c = 6, y = "lwage", d = "nvstat", data = data)
+eete(cpiee, eta = 2, c = 0.00000001, y = "wage", d = "nvstat", data = data)
 ```
 
 ### Custom Functions
@@ -101,7 +101,7 @@ If an IV is needed, we can define this extra parameter as $z$
 ```{r}
 eete(crpie, gam = 2, y = "lwage", d = "nvstat", z = "rsncode", data = data)
 eete(cdpie, r = 2, y = "lwage", d = "nvstat", z = "rsncode", data = data)
-eete(cpiee, eta = 1, c = 6, y = "lwage", d = "nvstat", z = "rsncode", data = data)
+eete(cpiee, eta = 1, c = 0.0000001, y = "wage", d = "nvstat", z = "rsncode", data = data)
 ```
 
 ### Inverses

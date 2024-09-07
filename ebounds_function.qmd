@@ -27,4 +27,3 @@ ebounds(crpie, gam = 0, y = "lwage", d = "nvstat", z = "rsncode", data = SIPP199
 ```{r}
 ebounds(crpie, gam = 0, y = "lwage", d = "nvstat", z = "rsncode", data = SIPP1991_edit, se = TRUE)
 ```
-

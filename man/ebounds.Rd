@@ -4,10 +4,22 @@
 \alias{ebounds}
 \title{Find the EETE Bounds}
 \usage{
-ebounds(inputFunction, ..., y, d, z, wgt = NULL, data, se = FALSE, B = 1000)
+ebounds(
+  f,
+  ...,
+  y,
+  d,
+  z,
+  wgt = NULL,
+  data,
+  se = FALSE,
+  B = 1000,
+  minimum_y = NULL,
+  maximum_y = NULL
+)
 }
 \arguments{
-\item{inputFunction}{A function to apply to the outcome variable.}
+\item{f}{A function to apply to the outcome variable.}
 
 \item{...}{Additional arguments for the input function.}
 
@@ -20,6 +32,10 @@ ebounds(inputFunction, ..., y, d, z, wgt = NULL, data, se = FALSE, B = 1000)
 \item{wgt}{A vector of weights.}
 
 \item{data}{A data frame containing y, d, and z columns.}
+
+\item{minimum_y}{An optional parameter to define the minimum or lower y value.}
+
+\item{maximum_y}{An optional parameter to define the maximum or upper y value.}
 }
 \value{
 A data frame with probabilities and bounds.

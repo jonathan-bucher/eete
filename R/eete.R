@@ -149,12 +149,13 @@ eete = function(f, ..., y, d, z = NULL, data, lower = 0.1, upper = 100, se = NUL
 
     eete = list(estimate = eete)
 
-  } else if (se == TRUE) {
+  } else if (se == "theoretical") {
 
 
     if (is.null(se_function)){
       boot_results = boot::boot(data, ee, R = B)
       se = sd(boot_results$t)
+      message("No theoretical SE function exists. Using bootstrapped SE.")
 
       eete = list(estimate = eete, se = se)
     } else {
@@ -163,6 +164,10 @@ eete = function(f, ..., y, d, z = NULL, data, lower = 0.1, upper = 100, se = NUL
       eete = list(estimate = eete, se = se)
     }
 
+  } else if (se == "boot") {
+    boot_results = boot::boot(data, ee, R = B)
+    se = sd(boot_results$t)
+    eete = list(estimate = eete, se = se)
   }
 }
   return(eete)

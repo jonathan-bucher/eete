@@ -2,23 +2,25 @@
 #'
 #' This function returns a data frame of the upper and lower bounds calculations.
 #'
-#' @param inputFunction A function to apply to the outcome variable.
+#' @param f A function to apply to the outcome variable.
 #' @param ... Additional arguments for the input function.
 #' @param y A string indicating the outcome variable column name.
 #' @param d A string indicating the selection or treatment variable column name.
 #' @param z A string indicating the instrument variable column name.
 #' @param wgt A vector of weights.
 #' @param data A data frame containing y, d, and z columns.
+#' @param minimum_y An optional parameter to define the minimum or lower y value.
+#' @param maximum_y An optional parameter to define the maximum or upper y value.
 #' @return A data frame with probabilities and bounds.
 #' @export
 
-ebounds = function(inputFunction, ..., y, d, z, wgt = NULL, data, se = FALSE, B = 1000){
+ebounds = function(f, ..., y, d, z, wgt = NULL, data, se = FALSE, B = 1000, minimum_y = NULL, maximum_y = NULL){
 
   data_test = data |>
     dplyr::select(!!sym(y))
 
-  if (is.character(inputFunction(data_test, ...))) {
-    all_results = inputFunction(data_test, ...)
+  if (is.character(f(data_test, ...))) {
+    all_results = f(data_test, ...)
 
   } else {
 
@@ -26,33 +28,52 @@ ebounds = function(inputFunction, ..., y, d, z, wgt = NULL, data, se = FALSE, B 
 
       bdata = data[indices,]
 
-      bdata = bdata |>
-        rename(y = !!sym(y),
-               z = !!sym(z),
-               s = !!sym(d)) |>
-        mutate(wgt = ifelse(is.null(wgt), 1, wgt),
-               y = inputFunction(y, ...)) |>
-        filter(!is.na(z), s %in% c(0, 1), !(is.na(y) & s == 1)) |>
-        mutate(nn = as.integer(z == 1 & s == 0), # treated and unemployed
-               ee = as.integer(z == 0 & s == 1), # untreated and employed
-               nn_ne = as.integer(z == 0 & s == 0), # untreated and unemployed
-               ee_ne = as.integer(z == 1 & s == 1)) # treated and employed
+      if (is.null(wgt)) {
+        bdata <- bdata |>
+          rename(y_raw = !!sym(y),
+                 z = !!sym(z),
+                 s = !!sym(d)) |>
+          mutate(wgt = 1,
+                 y = f(y_raw, ...)) |>
+          filter(!is.na(z), s %in% c(0, 1), !(is.na(y) & s == 1)) |>
+          mutate(nn = as.integer(z == 1 & s == 0),  # treated and unemployed
+                 ee = as.integer(z == 0 & s == 1),  # untreated and employed
+                 nn_ne = as.integer(z == 0 & s == 0),  # untreated and unemployed
+                 ee_ne = as.integer(z == 1 & s == 1))  # treated and employed
+      } else {
+        bdata <- bdata |>
+          rename(y_raw = !!sym(y),
+                 z = !!sym(z),
+                 s = !!sym(d),
+                 wgt = !!sym(wgt))|>
+          mutate(y = f(y_raw, ...)) |>
+          filter(!is.na(z), s %in% c(0, 1), !(is.na(y) & s == 1)) |>
+          mutate(nn = as.integer(z == 1 & s == 0),  # treated and unemployed
+                 ee = as.integer(z == 0 & s == 1),  # untreated and employed
+                 nn_ne = as.integer(z == 0 & s == 0),  # untreated and unemployed
+                 ee_ne = as.integer(z == 1 & s == 1))  # treated and employed
+      }
+
 
       props = bdata |>
-        summarise(pr_nn = sum(nn * wgt, na.rm = TRUE) / sum(wgt, na.rm = TRUE), # the proportion of unemployed in the treated group
-                  pr_ee = sum(ee * wgt, na.rm = TRUE) / sum(wgt, na.rm = TRUE), # the proportion of employed in the untreated group
-                  pr_nn_ne = sum(nn_ne * wgt, na.rm = TRUE) / sum(wgt, na.rm = TRUE), # the proportion of unemployed in the untreated group
-                  pr_ee_ne = sum(ee_ne * wgt, na.rm = TRUE) / sum(wgt, na.rm = TRUE)) |> # the proportion of employed in the treated group
+        mutate(z_1 = ifelse(z == 1, 1, 0),
+               z_0 = ifelse(z == 0, 1, 0)) |>
+        summarise(pr_nn = sum(nn * wgt, na.rm = TRUE) / sum(wgt * z_1, na.rm = TRUE), # the proportion of unemployed in the treated group
+                  pr_ee = sum(ee * wgt, na.rm = TRUE) / sum(wgt * z_0, na.rm = TRUE), # the proportion of employed in the untreated group
+                  pr_nn_ne = sum(nn_ne * wgt, na.rm = TRUE) / sum(wgt * z_0, na.rm = TRUE), # the proportion of unemployed in the untreated group
+                  pr_ee_ne = sum(ee_ne * wgt, na.rm = TRUE) / sum(wgt *z_1, na.rm = TRUE)) |> # the proportion of employed in the treated group
         mutate(pr_ne = pr_ee_ne - pr_ee,
                pr_ne2 = pr_nn_ne - pr_nn,
                tprop = (pr_ee / pr_ee_ne) * 100,
                one_tprop = 100 - tprop)
 
+
       means = bdata |>
         summarise(y_ee0 = weighted.mean(y[ee == 1], w = wgt[ee == 1], na.rm = TRUE), # the mean y if employed and untreated
                   y_11 = weighted.mean(y[ee_ne == 1], w = wgt[ee_ne == 1], na.rm = TRUE), # the mean y if employed and treated
-                  lower_y = min(y, na.rm = TRUE),
-                  upper_y = max(y, na.rm = TRUE))
+                  lower_y = ifelse(is.na(minimum_y), min(y, na.rm = TRUE), f(minimum_y,...)),
+                  upper_y = ifelse(is.na(maximum_y), max(y, na.rm = TRUE), f(maximum_y,...)))
+
 
       bdata = bdata |>
         filter(s == 1, z == 1) |>
