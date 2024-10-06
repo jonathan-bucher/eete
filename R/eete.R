@@ -56,36 +56,46 @@ eete = function(f, ..., y, d, z = NULL, data, lower = 0.1, upper = 100, se = NUL
 
   } else {
 
-    se_function = NULL
 
     if (any(identical(f, eete::crpie), identical(f, eete::cdpie), identical(f, eete::cpiee))) {
 
       if (!is.null(f_inv)) {
         f_inv = NULL
       }
-      if (lower != 0.1 | upper != 100 | B != 1000){
-        message("B, lower, and upper parameters are options for custom functions, which require bootstrapped standard errors and uniroot inverses. These parameters will not affect eete::crpie, eete::cdpie, or eete::cpiee functions.")
+      if (lower != 0.1 | upper != 100){
+        message("lower and upper parameters are options for custom functions, which require bootstrapped standard errors and uniroot inverses. These parameters will not affect eete::crpie, eete::cdpie, or eete::cpiee functions.")
       }
 }
     if (is.null(f_inv)) {
 
       if (identical(f, eete::crpie)) {
         f_inv = function(x) eete::crpie_inv(x, ...)
-        # INSERT SE CODE HERE
-        # se_function =
+        f_inv_prime = function(x) eete::crpie_inv_prime(x, ...)
 
       } else if (identical(f, eete::cdpie)) {
         f_inv = function(x) eete::cdpie_inv(x, ...)
-        # INSERT SE CODE HERE
-        # se_function =
+        f_inv_prime = function(x) eete::cdpie_inv_prime(x, ...)
 
       } else if (identical(f, eete::cpiee)) {
         f_inv = function(x) eete::cpiee_inv(x, ...)
-        # INSERT SE CODE HERE
-        # se_function =
+
+        # INSERT f_inv_prime function here
+
+        if (!is.null(se)){
+          se = "boot"
+          message("No theoretical SE for cpiee, using bootstrapped SE")
+        }
+
+        f_inv_prime = function(x) x
 
       } else {
         f_inv = inverse_fun(function(x) f(x, ...), lower, upper)
+        f_inv_prime = function(x) x
+
+        if (!is.null(se)){
+          se = "boot"
+          message("No theoretical SE for custom function, using bootstrapped SE")
+        }
       }
     }
 
@@ -113,7 +123,11 @@ eete = function(f, ..., y, d, z = NULL, data, lower = 0.1, upper = 100, se = NUL
 
     eete = (f_inv(fee1) - f_inv(fee0))
 
-    return(eete)
+    #INSERT VARIANNCE HERE
+
+    var_eete = NULL
+
+    return(c(eete, var_eete))
   }
 
 
@@ -138,7 +152,12 @@ eete = function(f, ..., y, d, z = NULL, data, lower = 0.1, upper = 100, se = NUL
 
       eete = (f_inv(fee1) - f_inv(fee0))
 
-      return(eete)
+      var_fee1 = var(f(yz1, ...), na.rm = TRUE)/nrow(data1)
+      var_fee0 = var(f(yz0, ...), na.rm = TRUE)/nrow(data0)
+
+      var_eete = (f_inv_prime(fee1))^2 * var_fee1 + (f_inv_prime(fee0))^2 * var_fee0
+
+      return(c(eete, var_eete))
     }
 
   }
@@ -147,27 +166,26 @@ eete = function(f, ..., y, d, z = NULL, data, lower = 0.1, upper = 100, se = NUL
 
   if (is.null(se)) {
 
-    eete = list(estimate = eete)
+    eete = list(estimate = eete[1])
 
   } else if (se == "theoretical") {
 
 
-    if (is.null(se_function)){
+    if (is.null(eete[2])){
       boot_results = boot::boot(data, ee, R = B)
-      se = sd(boot_results$t)
+      se = sd(boot_results$t[,1])
       message("No theoretical SE function exists. Using bootstrapped SE.")
 
-      eete = list(estimate = eete, se = se)
+      eete = list(estimate = eete[1], se = se)
     } else {
-      # INSERT SE CODE HERE
-      #se = se_function()
-      eete = list(estimate = eete, se = se)
+      se = sqrt(eete[2])
+      eete = list(estimate = eete[1], se = se)
     }
 
   } else if (se == "boot") {
     boot_results = boot::boot(data, ee, R = B)
-    se = sd(boot_results$t)
-    eete = list(estimate = eete, se = se)
+    se = sd(boot_results$t[,1])
+    eete = list(estimate = eete[1], se = se)
   }
 }
   return(eete)

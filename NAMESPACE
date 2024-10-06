@@ -2,10 +2,12 @@
 
 export(cdpie)
 export(cdpie_inv)
+export(cdpie_inv_prime)
 export(cpiee)
 export(cpiee_inv)
 export(crpie)
 export(crpie_inv)
+export(crpie_inv_prime)
 export(ebounds)
 export(eete)
 import(dplyr)

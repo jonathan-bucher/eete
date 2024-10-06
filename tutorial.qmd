@@ -19,7 +19,7 @@ library(tidyverse)
 library(eete)
 ```
 
-Load the sample data set Angrist (1991)
+Load the sample data Angrist (1991)
 
 ```{r}
 data("Angrist_1991_SIPP", package = "eete")
@@ -58,7 +58,7 @@ Or, if given a value for $L$, *cdpie* calculates $$g(x) = -2^{-\frac{x}{L}}$$
 ```{r}
 x = c(5,6,7)
 
-cdpie(x = x, r = 2)
+cdpie(x = x, a = 0.5)
 cdpie(x = x, L = 10)
 ```
 
@@ -82,7 +82,7 @@ To calculate the EETE of treatment $d$ on outcome $y$ given the inequality avers
 
 ```{r}
 eete(crpie, gam = 2, y = "lwage", d = "nvstat", data = data)
-eete(cdpie, r = 2, y = "lwage", d = "nvstat", data = data)
+eete(cdpie, a = 0.5, y = "lwage", d = "nvstat", data = data)
 eete(cpiee, eta = 2, c = 0.00000001, y = "wage", d = "nvstat", data = data)
 ```
 
@@ -100,7 +100,7 @@ If an IV is needed, we can define this extra parameter as $z$
 
 ```{r}
 eete(crpie, gam = 2, y = "lwage", d = "nvstat", z = "rsncode", data = data)
-eete(cdpie, r = 2, y = "lwage", d = "nvstat", z = "rsncode", data = data)
+eete(cdpie, a = 2, y = "lwage", d = "nvstat", z = "rsncode", data = data)
 eete(cpiee, eta = 1, c = 0.0000001, y = "wage", d = "nvstat", z = "rsncode", data = data)
 ```
 
@@ -127,22 +127,26 @@ eete(function(x) x^7, y = "lwage", d = "nvstat", z = "rsncode", data = data, f_i
 
 ### SE
 
-If you wish to obtain the SE of the EETE estimate, you can set $se = TRUE$. If using on of the inequality aversion functions provided in *eete*, se will be calculated directly.
+If you wish to obtain the SE of the EETE estimate, you can set $se = \ 'boot'$ for a bootstrapped SE
 
 ```{r}
-eete(crpie, gam = 2, y = "lwage", d = "nvstat", z = "rsncode", data = data, se = TRUE)
-```
-
-If using a custom function, $se = TRUE$ will calculate a bootstrapped se
-
-```{r}
-eete(function(x) x^7, y = "lwage", d = "nvstat", data = data, f_inv = function(x) x^(1/7), se = TRUE)
+eete(crpie, gam = 2, y = "lwage", d = "nvstat", data = data, se = "boot")
+eete(cdpie, a = 0.5, y = "lwage", d = "nvstat", data = data, se = "boot")
 ```
 
 If you wish to change the number of bootstrapped samples from the default $B = 1000$, you can set $B$ manually
 
 ```{r}
-eete(function(x) x^7, y = "lwage", d = "nvstat", data = data, f_inv = function(x) x^(1/7), se = TRUE, B = 500)
+eete(crpie, gam = 2, y = "lwage", d = "nvstat", data = data, se = "boot", B = 500)
+eete(cdpie, a = 0.5, y = "lwage", d = "nvstat", data = data, se = "boot", B = 500)
+```
+
+You may also set $se = \ 'theoretical'$ for a direct calculation
+
+```{r}
+
+eete(crpie, gam = 2, y = "lwage", d = "nvstat", data = data, se = "theoretical")
+eete(cdpie, a = 0.5, y = "lwage", d = "nvstat", data = data, se = "theoretical")
 ```
 
 ## EETE Bounds

@@ -49,3 +49,7 @@ cpiee_inv = function(x, eta, c) {
 
   return(val)
 }
+
+
+
+# INSERT INVERSE PRIME FUNCTION HERE

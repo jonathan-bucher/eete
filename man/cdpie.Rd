@@ -4,18 +4,18 @@
 \alias{cdpie}
 \title{Calculate values of Constant Difference Protected Income Evaluations (CDPIE), or Kolm-Pollak.}
 \usage{
-cdpie(x, r = NULL, L = NULL)
+cdpie(x, a = NULL, L = NULL)
 }
 \arguments{
 \item{x}{A numeric value or list.}
 
-\item{r}{The value of r, a scale factor that adjusts the intensity of risk aversion. This parameter is optional if L is provided.}
+\item{a}{The value of a, a scale factor that adjusts the intensity of risk aversion. This parameter is optional if L is provided.}
 
-\item{L}{The value of L. This parameter is optional if r is provided.}
+\item{L}{The value of L. This parameter is optional if a is provided.}
 }
 \value{
 A numeric or list of return values from the CDPIE utility function.
 }
 \description{
-This function calculates the value of \eqn{g(x) = -e^{-\frac{x}{r}}} given a value for \eqn{r} or will calculate the value of \eqn{g(x) = -2^{-\frac{x}{L}}} given a value for \eqn{L}.
+This function calculates the value of \eqn{g(x) = -e^{-\frac{x}{a}}} given a value for \eqn{a} or will calculate the value of \eqn{g(x) = -2^{-\frac{x}{L}}} given a value for \eqn{L}.
 }
