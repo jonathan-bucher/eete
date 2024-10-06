@@ -51,7 +51,7 @@ crpie(x = x, k = 10)
 
 ### Constant Difference Protected Income Evaluations (cdpie)
 
-If given a value for $r$, *cdpie* calculates $$g(x) = -e^{-\frac{x}{r}}$$
+If given a value for $a$, *cdpie* calculates $$g(x) = -e^{-ax}$$
 
 Or, if given a value for $L$, *cdpie* calculates $$g(x) = -2^{-\frac{x}{L}}$$
 
