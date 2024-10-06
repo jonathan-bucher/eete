@@ -1,1 +1,158 @@
-Repo for the eete R package for the estimation of egalitarian equivalent treatment effects. 
+## Set-Up
+
+To get started using the eete package, download **eete** directly from GitHub.
+
+```{r}
+#| message: false
+
+library(devtools)
+library(tidyverse)
+
+#devtools::install_github("mkairy/eete")
+
+library(eete)
+```
+
+Load the sample data Angrist (1991)
+
+```{r}
+data("Angrist_1991_SIPP", package = "eete")
+
+data = Angrist_1991_SIPP |>
+  mutate(rsncode = ifelse(rsncode == 999, NA, rsncode),
+         wage = kwage,
+         lwage = log(kwage))
+```
+
+## Inequality Aversion Functions
+
+eete::*crpie*, eete::*cdpie*, and eete::*cpiee* are all damage functions that can describe the level of inequality aversion of an evaluator.
+
+### Constant Relative Protected Income Evaluations (crpie)
+
+If given an value for $\gamma$, *crpie* calculates $$g(x) = \frac{x^{1-\gamma}}{1-\gamma}$$
+
+Or, if given a value for $k$, *crpie* calculate $$g(x) = \log_2(k) x^{\frac{1}{\log_2(k)}}$$
+
+*Note: If* $k < 1$, $k$ represents the percent of income to protect. If $k > 1$, $k$ represents the multiple person A must receive to sacrifice income of person B completely.
+
+```{r}
+x = c(5,6,7)
+
+crpie(x = x, gam = 2)
+crpie(x = x, k = 10)
+```
+
+### Constant Difference Protected Income Evaluations (cdpie)
+
+If given a value for $a$, *cdpie* calculates $$g(x) = -e^{-ax}$$
+
+Or, if given a value for $L$, *cdpie* calculates $$g(x) = -2^{-\frac{x}{L}}$$
+
+```{r}
+x = c(5,6,7)
+
+cdpie(x = x, a = 0.5)
+cdpie(x = x, L = 10)
+```
+
+### Constant Protected Income Elasticity Evaluations (cpiee)
+
+If given a value for $\eta$ and $c$, *cpiee* calculates $$g(x) = \frac{(\ln\frac{x}{c})^{1-\eta}}{1-\eta}$$ given a value for $\eta \geq 0$ and $\eta \neq 1$
+
+Or will calculate the value of $$\ln\left({\ln\left(\frac{x}{c}\right)}\right)$$ given a value $\eta = 1$.
+
+*Note: All values of X must be greater than c*
+
+```{r}
+x = c(5,6,7)
+
+cpiee(x = x, eta = 2, c = 2)
+```
+
+## Egalitarian Equivalent Treatment Effect (EETE)
+
+To calculate the EETE of treatment $d$ on outcome $y$ given the inequality aversion function and its parameters, we use **eete::***eete*
+
+```{r}
+eete(crpie, gam = 2, y = "lwage", d = "nvstat", data = data)
+eete(cdpie, a = 0.5, y = "lwage", d = "nvstat", data = data)
+eete(cpiee, eta = 2, c = 0.00000001, y = "wage", d = "nvstat", data = data)
+```
+
+### Custom Functions
+
+You may also use a custom function as the inequality aversion function
+
+```{r}
+eete(function(x) x^7, y = "lwage", d = "nvstat", data = data)
+```
+
+### IV
+
+If an IV is needed, we can define this extra parameter as $z$
+
+```{r}
+eete(crpie, gam = 2, y = "lwage", d = "nvstat", z = "rsncode", data = data)
+eete(cdpie, a = 2, y = "lwage", d = "nvstat", z = "rsncode", data = data)
+eete(cpiee, eta = 1, c = 0.0000001, y = "wage", d = "nvstat", z = "rsncode", data = data)
+```
+
+### Inverses
+
+By default, *eete* uses built-in inverse functions when using inequality aversion functions provided in *eete*: eete::*crpie*, eete::*cdpie*, and eete::*cpiee* (you may access these directly with \[function_name\]\_inv)
+
+```{r}
+eete(crpie, gam = 2, y = "lwage", d = "nvstat", z = "rsncode", data = data)
+```
+
+and uses *uniroot* to find the inverse function of any custom inequality aversion function provided. *uniroot* uses upper and lower bounds to find the root, which you may choose to set yourself if the default bounds aren't optimal for your function
+
+```{r}
+eete(function(x) x^7, y = "lwage", d = "nvstat", z = "rsncode", data = data)
+eete(function(x) x^7, y = "lwage", d = "nvstat", z = "rsncode", data = data, lower = 0.1, upper = 50)
+```
+
+However, if you know the inverse function of the inequality aversion function provided, you can choose to define $f\_inv$, the inverse, directly
+
+```{r}
+eete(function(x) x^7, y = "lwage", d = "nvstat", z = "rsncode", data = data, f_inv = function(x) x^(1/7))
+```
+
+### SE
+
+If you wish to obtain the SE of the EETE estimate, you can set $se = \ 'boot'$ for a bootstrapped SE
+
+```{r}
+eete(crpie, gam = 2, y = "lwage", d = "nvstat", data = data, se = "boot")
+eete(cdpie, a = 0.5, y = "lwage", d = "nvstat", data = data, se = "boot")
+```
+
+If you wish to change the number of bootstrapped samples from the default $B = 1000$, you can set $B$ manually
+
+```{r}
+eete(crpie, gam = 2, y = "lwage", d = "nvstat", data = data, se = "boot", B = 500)
+eete(cdpie, a = 0.5, y = "lwage", d = "nvstat", data = data, se = "boot", B = 500)
+```
+
+You may also set $se = \ 'theoretical'$ for a direct calculation
+
+```{r}
+
+eete(crpie, gam = 2, y = "lwage", d = "nvstat", data = data, se = "theoretical")
+eete(cdpie, a = 0.5, y = "lwage", d = "nvstat", data = data, se = "theoretical")
+```
+
+## EETE Bounds
+
+To calculate Horowitz and Manski, Lee, and Chen and Flores bounds, use eete::*ebounds*
+
+```{r}
+ebounds(crpie, gam = 2, y = "lwage", d = "nvstat", z = "rsncode", data = data)
+```
+
+If you wish to also calculate the SE of each bound, you can set $se = TRUE$
+
+```{r}
+ebounds(crpie, gam = 2, y = "lwage", d = "nvstat", z = "rsncode", data = data, se = TRUE)
+```
