@@ -130,14 +130,14 @@ eete(function(x) x^7, y = "lwage", d = "nvstat", z = "rsncode", data = data, f_i
 If you wish to obtain the SE of the EETE estimate, you can set $se = \ 'boot'$ for a bootstrapped SE
 
 ```{r}
-eete(crpie, gam = 2, y = "lwage", d = "nvstat", data = data, se = "boot")
+eete(crpie, gam = 3, y = "wage", d = "nvstat", data = data, se = "boot")
 eete(cdpie, a = 0.5, y = "lwage", d = "nvstat", data = data, se = "boot")
 ```
 
 If you wish to change the number of bootstrapped samples from the default $B = 1000$, you can set $B$ manually
 
 ```{r}
-eete(crpie, gam = 2, y = "lwage", d = "nvstat", data = data, se = "boot", B = 500)
+eete(crpie, gam = 3, y = "wage", d = "nvstat", data = data, se = "boot", B = 500)
 eete(cdpie, a = 0.5, y = "lwage", d = "nvstat", data = data, se = "boot", B = 500)
 ```
 
@@ -145,7 +145,7 @@ You may also set $se = \ 'theoretical'$ for a direct calculation
 
 ```{r}
 
-eete(crpie, gam = 2, y = "lwage", d = "nvstat", data = data, se = "theoretical")
+eete(crpie, gam = 3, y = "wage", d = "nvstat", data = data, se = "theoretical")
 eete(cdpie, a = 0.5, y = "lwage", d = "nvstat", data = data, se = "theoretical")
 ```
 

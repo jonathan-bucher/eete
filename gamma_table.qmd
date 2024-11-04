@@ -1,0 +1,59 @@
+---
+title: "gamma_table"
+format: html
+editor: visual
+---
+
+
+```{r}
+#| message: false
+
+library(devtools)
+library(tidyverse)
+
+#devtools::install_github("mkairy/eete")
+
+library(eete)
+```
+
+Load the sample data Angrist (1991)
+
+```{r}
+data("Angrist_1991_SIPP", package = "eete")
+
+data = Angrist_1991_SIPP |>
+  mutate(rsncode = ifelse(rsncode == 999, NA, rsncode),
+         wage = kwage,
+         lwage = log(kwage))
+```
+
+
+```{r}
+gam_table = data.frame(gam = NULL,
+                       boot_se = NULL,
+                       theo_se = NULL)
+
+gam_list = c(0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 4, 5, 6, 7, 8, 9, 10)
+
+for (gamma in gam_list){
+  boot_se = eete(crpie, gam = gamma, y = "wage", d = "nvstat", data = data, se = "boot")$se
+  theo_se = eete(crpie, gam = gamma, y = "wage", d = "nvstat", data = data, se = "theoretical")$se
+  
+  gam_row = data.frame(gam = gamma,
+                       boot = boot_se,
+                       theoretical = theo_se)
+  
+  gam_table = rbind(gam_table, gam_row)
+  
+}
+
+gam_table = gam_table |>
+  filter(!is.null(gam))
+
+gam_table
+```
+
+```{r}
+write.csv(gam_table,"gamma_table.csv", row.names = FALSE)
+```
+

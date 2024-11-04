@@ -123,7 +123,7 @@ eete = function(f, ..., y, d, z = NULL, data, lower = 0.1, upper = 100, se = NUL
 
     eete = (f_inv(fee1) - f_inv(fee0))
 
-    #INSERT VARIANNCE HERE
+    #INSERT VARIANCE HERE
 
     var_eete = NULL
 
@@ -149,6 +149,7 @@ eete = function(f, ..., y, d, z = NULL, data, lower = 0.1, upper = 100, se = NUL
 
       fee1 = mean(f(yz1, ...), na.rm = TRUE)
       fee0 = mean(f(yz0, ...), na.rm = TRUE)
+
 
       eete = (f_inv(fee1) - f_inv(fee0))
 

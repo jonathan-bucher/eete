@@ -100,7 +100,8 @@ crpie_inv_prime = function(x, gam = NULL, k = NULL){
       val = "Values for gamma must be positive."
 
     } else if (gam != 1){
-      val = (1-gam)^(gam/(1-gam)) * x^(gam/(1-gam))
+      val = (x*(1-gam))^(gam/(1-gam))
+
     }else{
       val = exp(x)
     }
