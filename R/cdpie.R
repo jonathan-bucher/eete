@@ -14,14 +14,14 @@ cdpie = function(x, a = NULL, L = NULL){
     val = "Please provide a value for a or L."
 
   } else if (!is.null(a)){
-    if (a != 0){
+    if (a > 0){
       val = -exp(-a*x)
     }else{
       val = "Please use a > 0"
     }
 
   } else if (!is.null(L)){
-    if (L != 0){
+    if (L > 0){
       val = -2^(-x/L)
     }else{
       val = "Please use L > 0"
@@ -47,14 +47,14 @@ cdpie_inv = function(x, a = NULL, L = NULL){
     val = "Please provide a value for a or L."
 
   } else if (!is.null(a)){
-    if (a != 0){
+    if (a > 0){
       val = -log(-x)/a
     }else{
       val = "Please use a > 0"
     }
 
   } else if (!is.null(L)){
-    if (L != 0){
+    if (L > 0){
       val = -L*log2(-x)
     }else{
       val = "Please use L > 0"
@@ -81,14 +81,14 @@ cdpie_inv_prime = function(x, a = NULL, L = NULL){
     val = "Please provide a value for a or L."
 
   } else if (!is.null(a)){
-    if (a != 0){
+    if (a > 0){
       val = -1/(a*x)
     }else{
       val = "Please use a > 0"
     }
 
   } else if (!is.null(L)){
-    if (L != 0){
+    if (L > 0){
       val = -L/(log(2)*x)
     }else{
       val = "Please use L > 0"
