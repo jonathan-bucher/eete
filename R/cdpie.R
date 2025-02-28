@@ -11,23 +11,27 @@
 
 cdpie = function(x, a = NULL, L = NULL){
   if (is.null(a) & is.null(L)){
-    val = "Please provide a value for a or L."
-
-  } else if (!is.null(a)){
+    stop("Please provide a value for a or L.")
+  }
+  if (!is.null(a) & !is.null(L)){
+    stop("Please specify a value for only a or L, not both")
+  }
+  if (!is.null(a)){
     if (a > 0){
-      val = -exp(-a*x)
-    }else{
-      val = "Please use a > 0"
+      return(-exp(-a*x))
     }
-
-  } else if (!is.null(L)){
-    if (L > 0){
-      val = -2^(-x/L)
-    }else{
-      val = "Please use L > 0"
+    else{
+      stop("Please use a > 0")
     }
   }
-  return(val)
+  else{
+    if (L > 0){
+      return(-2^(-x/L))
+    }
+    else{
+      stop("Please use L > 0")
+    }
+  }
 }
 
 
@@ -44,23 +48,27 @@ cdpie = function(x, a = NULL, L = NULL){
 
 cdpie_inv = function(x, a = NULL, L = NULL){
   if (is.null(a) & is.null(L)){
-    val = "Please provide a value for a or L."
-
-  } else if (!is.null(a)){
+    stop("Please provide a value for a or L.")
+  }
+  if (!is.null(a) & !is.null(L)){
+    stop("Please specify a value for only a or L, not both")
+  }
+  if (!is.null(a)){
     if (a > 0){
-      val = -log(-x)/a
-    }else{
-      val = "Please use a > 0"
+      return(-log(-x)/a)
     }
-
-  } else if (!is.null(L)){
-    if (L > 0){
-      val = -L*log2(-x)
-    }else{
-      val = "Please use L > 0"
+    else{
+      stop("Please use a > 0")
     }
   }
-  return(val)
+  else{
+    if (L > 0){
+      return(-L*log2(-x))
+    }
+    else{
+      stop("Please use L > 0")
+    }
+  }
 }
 
 
