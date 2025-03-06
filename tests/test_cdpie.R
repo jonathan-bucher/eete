@@ -5,8 +5,6 @@ source("C:/Users/jonat/OneDrive/economics_research/eete/R/cdpie.R")
 
 x = c(1, 2, 3, 4, 5)
 
-cdpie(x, L = 1)
-
 test_that("cdpie handels null values for a and L case", {
   expect_error(cdpie(x), "Please provide a value for a or L.")
 })
@@ -48,3 +46,8 @@ test_that("cpdie_inv handles a < 0 case", {
   expect_error(cdpie_inv(x, a = -1), "Please use a > 0")
 })
 
+# we get an invalid answer if we put in a nonnegative value for x.
+
+# test_that("cdpie_inv handles a properly", {
+  # expect_equal(cdpie_inv(x, a = 1), -log(-x)/a)
+# })

@@ -14,15 +14,17 @@ cpiee = function(x, eta, c) {
     stop("All values of X must be greater than c")
   }
   if (eta < 0) {
-    stop("Please use eta >= 0.")
+    stop("Please use eta >= 0")
   }
-
+  if (c == 0){
+    stop("please use nonzero c value")
+  }
   if (eta != 1) {
-    val = (log(abs(x) / c))^(1 - eta) / (1 - eta)
-  } else if (eta == 1) {
-    val = log(log(abs(x) / c))
+    return((log(abs(x) / c))^(1 - eta) / (1 - eta))
   }
-  return(val)
+  else if (eta == 1) {
+    return(log(log(abs(x) / c)))
+  }
 }
 
 
