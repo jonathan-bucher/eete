@@ -47,6 +47,9 @@ cdpie = function(x, a = NULL, L = NULL){
 #' @export
 
 cdpie_inv = function(x, a = NULL, L = NULL){
+  if (any(x > 0)){
+    stop("All values of x must be less than 0")
+  }
   if (is.null(a) & is.null(L)){
     stop("Please provide a value for a or L.")
   }
@@ -71,8 +74,6 @@ cdpie_inv = function(x, a = NULL, L = NULL){
   }
 }
 
-
-
 #' Calculate inverse prime values of Constant Difference Protected Income Evaluations (CDPIE), or Kolm-Pollak.
 #'
 #' This function calculates the values of the inverse prime of the CDPIE function.
@@ -86,21 +87,25 @@ cdpie_inv = function(x, a = NULL, L = NULL){
 
 cdpie_inv_prime = function(x, a = NULL, L = NULL){
   if (is.null(a) & is.null(L)){
-    val = "Please provide a value for a or L."
-
-  } else if (!is.null(a)){
+    stop("Please provide a value for a or L.")
+  }
+  if(!is.null(a) & !is.null(L)){
+    stop("Please specify a value for only a or L, not both")
+  }
+  else if (!is.null(a)){
     if (a > 0){
-      val = -1/(a*x)
-    }else{
-      val = "Please use a > 0"
+      return(-1/(a*x))
     }
-
-  } else if (!is.null(L)){
-    if (L > 0){
-      val = -L/(log(2)*x)
-    }else{
-      val = "Please use L > 0"
+    else{
+      stop("Please use a > 0")
     }
   }
-  return(val)
+  else if (!is.null(L)){
+    if (L > 0){
+      return(-L/(log(2)*x))
+    }
+    else{
+      stop("Please use L > 0")
+    }
+  }
 }
