@@ -11,7 +11,7 @@
 
 cpiee = function(x, eta, c) {
   if (!all(x > c,  na.rm = TRUE)) {
-    stop("All values of X must be greater than c")
+    stop("All values of x must be greater than c")
   }
   if (eta < 0) {
     stop("Please use eta >= 0")
@@ -22,7 +22,7 @@ cpiee = function(x, eta, c) {
   if (eta != 1) {
     return((log(abs(x) / c))^(1 - eta) / (1 - eta))
   }
-  else if (eta == 1) {
+  else {
     return(log(log(abs(x) / c)))
   }
 }
@@ -42,16 +42,35 @@ cpiee_inv = function(x, eta, c) {
   if (eta < 0) {
     stop("Please use eta >= 0.")
   }
-
   if (eta != 1) {
-    val = c * exp((x * (1 - eta))^(1 / (1 - eta)))
-  } else if (eta == 1) {
-    val = c * exp(exp(x))
+    return(c * exp((x * (1 - eta))^(1 / (1 - eta))))
   }
-
-  return(val)
+  else {
+    return(c * exp(exp(x)))
+  }
 }
 
 
 
-# INSERT INVERSE PRIME FUNCTION HERE
+#' Calculate inverse prime values of Constant Protected Income Elasticity Evaluations (CPIEE)
+#'
+#'
+#' @param x A numeric value or list
+#' @param eta The value of eta
+#' @param c The value of c
+#' @return A numeric or list of return values from the inverse prime CPIEE utility function.
+#' @export
+
+# need to verify parameter requirements
+cpiee_inv_prime = function(x, eta, c) {
+
+  if (eta < 0) {
+    stop("Please use eta >= 0")
+  }
+  if (eta != 1) {
+    return(c * (x * (1 - eta)) ^ ((1 / (1 - eta)) - 1) * exp((x * (1 - eta)) ^ (1 / (1 - eta))))
+  }
+  if (eta == 1){
+    return(c * exp(x + exp(x)))
+  }
+}
