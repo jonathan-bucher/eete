@@ -6,34 +6,52 @@
 #' Note: If \eqn{k < 1}, \eqn{k} represents the percent of income to protect. If \eqn{k > 1}, \eqn{k} represents the multiple person A must receive to sacrifice income of person B completely.
 #'
 #' @param x A numeric value or list.
-#' @param gam The value of gamma, the coefficient of relative risk aversion. This value is optional if a value for k is provided.
-#' @param k The value of k, the percent of income to protect. This value is optional if a value for gamma is provided.
+#' @param gam The value of gamma, the coefficient of relative risk aversion.
+#' @param k The value of k, the percent of income to protect.
 #' @return A numeric or list of return values from the CRPIE utility function.
 #' @export
 
 crpie = function(x, gam = NULL, k = NULL){
+  # check for negative values in x vector
+  neg = FALSE
+  if (any(x < 0)){
+    neg = TRUE
+  }
   if (is.null(gam) & is.null(k)){
-    val = "Please provide a value for gamma or k."
-
-  } else if (!is.null(gam)){
+    stop("Please provide a value for gamma or k.")
+  }
+  if (!is.null(gam) & !is.null(k)){
+    stop("Please do not specify both gamma and k.")
+  }
+  if (!is.null(gam)){
     if (gam < 0){
-      val = "Values for gamma must be positive."
-    } else if (gam != 1){
-      val = x^(1-gam)/(1-gam)
-    }else{
-      val =log(x)
+      stop("Values for gamma must be positive.")
     }
-
-  } else {
+    if (gam != 1){
+      return(x^(1-gam)/(1-gam))
+    }
+    if (neg) {
+      stop("for cases where gamma is specified to be a value other than one, all values of x must be positive")
+    }
+    return(log(x))
+  }
+  else {
+    if (k < 0){
+      stop("k must be positive")
+    }
     if (k == 0){
-      val = log(x)
-    }else if (k >= 1 & k < 2){
-      val = "Values for k between 1 and 2 are not allowed."
-    }else{
-      val = log2(k) * x^(1/(log2(k)))
+      if (neg){
+        stop("for cases where k is specified as 0, all values of x must be positive")
+      }
+      return(log(x))
+    }
+    if (k >= 1 & k < 2){
+      stop("Values for k between 1 (inclusive) and 2 (exclusive) are not allowed.")
+    }
+    else{
+      return(log2(k) * x ^ (1/(log2(k))))
     }
   }
-  return(val)
 }
 
 #' Calculate inverse values of Constant Relative Protected Income Evaluations (CRPIE), or Kolm-Atkinson.
@@ -43,33 +61,35 @@ crpie = function(x, gam = NULL, k = NULL){
 #' Note: If \eqn{k < 1}, \eqn{k} represents the percent of income to protect. If \eqn{k > 1}, \eqn{k} represents the multiple person A must receive to sacrifice income of person B completely.
 #'
 #' @param x A numeric value or list.
-#' @param gam The value of gamma, the coefficient of relative risk aversion. This value is optional if a value for k is provided.
-#' @param k The value of k, the percent of income to protect. This value is optional if a value for gamma is provided.
+#' @param gam The value of gamma, the coefficient of relative risk aversion.
+#' @param k The value of k, the percent of income to protect.
 #' @return A numeric or list of return values from the inverse CRPIE utility function.
 #' @export
 
 crpie_inv = function(x, gam = NULL, k = NULL){
   if (is.null(gam) & is.null(k)){
-    val = "Please provide a value for gamma or k."
-
-  } else if (!is.null(gam)){
+    stop("Please provide a value for gamma or k.")
+  }
+  if (!is.null(gam) & !is.null(k)){
+    stop("Please do not specify both gamma and k")
+  }
+  if (!is.null(gam)){
     if (gam < 0){
-      val = "Values for gamma must be positive."
-
-      } else if (gam != 1){
-      val = (x*(1-gam))^(1/(1-gam))
-    }else{
-      val =exp(x)
+      stop("Values for gamma must be positive.")
+      }
+    if (gam != 1){
+      return((x*(1-gam))^(1/(1-gam)))
     }
-
-  } else {
+    return(exp(x))
+  }
+  else {
     if (k == 0){
       val = exp(x)
-
-      }else if (k >= 1 & k < 2){
-      val = "Values for k between 1 and 2 are not allowed."
-
-      }else{
+      }
+    else if (k >= 1 & k < 2){
+      stop("Values for k between 1 and 2 are not allowed.")
+      }
+    else{
       val = (x/(log2(k)))^(log2(k))
     }
   }
@@ -93,29 +113,30 @@ crpie_inv = function(x, gam = NULL, k = NULL){
 
 crpie_inv_prime = function(x, gam = NULL, k = NULL){
   if (is.null(gam) & is.null(k)){
-    val = "Please provide a value for gamma or k."
-
-  } else if (!is.null(gam)){
-    if (gam < 0){
-      val = "Values for gamma must be positive."
-
-    } else if (gam != 1){
-      val = (x*(1-gam))^(gam/(1-gam))
-
-    }else{
-      val = exp(x)
-    }
-
-  } else {
-    if (k == 0){
-      val = exp(x)
-
-    }else if (k >= 1 & k < 2){
-      val = "Values for k between 1 and 2 are not allowed."
-
-    }else{
-      val = (x/(log2(k)))^(log2(k)-1)
-    }
+    stop("Please provide a value for gamma or k.")
   }
-  return(val)
+  if (!is.null(gam) & !is.null(k)){
+    stop("Please do not provide a value for both gamma and k")
+  }
+  if (!is.null(gam)){
+    if (gam < 0){
+      stop("Values for gamma must be positive.")
+    }
+    if (gam != 1){
+      return((x*(1-gam))^(gam/(1-gam)))
+    }
+    return(exp(x))
+  }
+  else {
+    if (k < 0){
+      stop("k must be positive")
+    }
+    if (k == 0){
+      return(exp(x))
+    }
+    if (k >= 1 & k < 2){
+      stop("Values for k between 1 (inclusive) and 2 (exclusive) are not allowed.")
+    }
+    return((x/(log2(k)))^(log2(k)-1))
+  }
 }
