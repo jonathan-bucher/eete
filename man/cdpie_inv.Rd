@@ -7,11 +7,11 @@
 cdpie_inv(x, a = NULL, L = NULL)
 }
 \arguments{
+\item{x}{A numeric value or list.}
+
 \item{a}{The value of a, a scale factor that adjusts the intensity of risk aversion. This parameter is optional if L is provided.}
 
 \item{L}{The value of L. This parameter is optional if a is provided.}
-
-\item{y}{A numeric value or list.}
 }
 \value{
 A numeric or list of return values from the inverse of the CDPIE utility function.

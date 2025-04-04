@@ -9,9 +9,9 @@ crpie(x, gam = NULL, k = NULL)
 \arguments{
 \item{x}{A numeric value or list.}
 
-\item{gam}{The value of gamma, the coefficient of relative risk aversion. This value is optional if a value for k is provided.}
+\item{gam}{The value of gamma, the coefficient of relative risk aversion.}
 
-\item{k}{The value of k, the percent of income to protect. This value is optional if a value for gamma is provided.}
+\item{k}{The value of k, the percent of income to protect.}
 }
 \value{
 A numeric or list of return values from the CRPIE utility function.

@@ -10,7 +10,7 @@ License:
 Encoding: UTF-8
 LazyData: true
 Imports: dplyr, boot, haven
-RoxygenNote: 7.2.2
+RoxygenNote: 7.3.2
 Suggests:
     knitr,
     rmarkdown

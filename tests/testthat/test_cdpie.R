@@ -1,8 +1,6 @@
 # install.packages("testthat")
 library(testthat)
 
-source("C:/Users/jonat/OneDrive/economics_research/eete/R/cdpie.R")
-
 x = c(1, 2, 3, 4, 5)
 
 test_that("cdpie handels null values for a and L case", {

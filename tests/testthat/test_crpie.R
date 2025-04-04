@@ -1,8 +1,6 @@
 # testing for the crpie function
 library(testthat)
 
-source("C:/Users/jonat/OneDrive/economics_research/eete/R/crpie.R")
-
 x = c(-1, 0, 0.5, 2, 3)
 x_pos = c(1, 0.1, 0.5, 2, 3)
 

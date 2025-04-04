@@ -10,7 +10,7 @@
 #' @examples
 #' inv_sqrt <- inverse_fun(function(x) x^2, 0, 100)
 #' inv_sqrt(4) # Should find a value close to 2
-
+#' @export
 
 inverse_fun = function(f, lower, upper) {
   function(y) uniroot((function(x) f(x) - y), lower = lower, upper = upper)$root
@@ -34,6 +34,8 @@ inverse_fun = function(f, lower, upper) {
 #' @return A list containing the estimated egalitarian equivalent treatment effect and the estimated variance.
 #' @import dplyr
 #' @importFrom boot boot
+#'
+#' @export
 
 # instrumental egalitarian equivalent function
 iv_eete = function(f, ..., y, d, z, data, indices, f_inv){
@@ -42,6 +44,13 @@ iv_eete = function(f, ..., y, d, z, data, indices, f_inv){
   # check if z is binary
   if (!all(bdata[[z]] %in% c(0, 1))) {
     stop("instrumental variable z must only take values 0 or 1")
+  }
+  if (!all(bdata[[d]] %in% c(0, 1))) {
+    stop("treatment indicator must only take values 0 (treatment) or 1 (control)")
+  }
+  # ensure there are individuals in treatment and control groups
+  if ((all(bdata[[d]] == 1)) | (all(bdata[[d]] == 0))){
+    stop("the treatment and control groups must each have at least one observation")
   }
   # filter data based on value of instrument
   data1 = bdata %>%
@@ -61,7 +70,7 @@ iv_eete = function(f, ..., y, d, z, data, indices, f_inv){
   fee1 = (((1 - p0) * fee_p1 - (1 - p1) * fee_p0) / (p1 - p0))
   fee0 = ((p1 * fee_p0 - p0 * fee_p1) / (p1 - p0))
   # compute difference in the inverse transformations of both counterfactuals
-  eete = (f_inv(fee1) - f_inv(fee0))
+  eete = (f_inv(fee1, ...) - f_inv(fee0, ...))
 
   #INSERT VARIANCE HERE
 

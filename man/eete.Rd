@@ -25,7 +25,7 @@ eete(
 
 \item{d}{The name of the treatment variable column in `data`.}
 
-\item{z}{Optional argument to include the name of the instrument variable column in `data`.}
+\item{z}{Optional argument to include the name of the instrument variable column in `data`. z must only take values 0 or 1}
 
 \item{data}{The data frame containing the variables.}
 
