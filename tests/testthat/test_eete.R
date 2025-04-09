@@ -52,7 +52,7 @@ fee_p0 <- mean(crpie(data0$mpg, gam = 1))
 fee1_expected <- (((1 - p0) * fee_p1 - (1 - p1) * fee_p0) / (p1 - p0))
 fee0_expected <- ((p1 * fee_p0 - p0 * fee_p1) / (p1 - p0))
 # compute eete
-expected_eete <- crpie_inv(fee1_expected, gam = 1) - crpie_inv(fee0_expected, gam =1)
+expected_iv_eete <- crpie_inv(fee1_expected, gam = 1) - crpie_inv(fee0_expected, gam =1)
 
 # Testing the instrumental variables eete function
 test_that("iv_eete computes the correct eete for a manual example", {
@@ -60,7 +60,7 @@ test_that("iv_eete computes the correct eete for a manual example", {
                     data = sample_data, indices = 1:nrow(sample_data),
                     f_inv = crpie_inv)
   # result[1] is the computed eete; here we compare it with our expected value
-  expect_equal(result[1], expected_eete, tolerance = 1e-6)
+  expect_equal(result[1], expected_iv_eete, tolerance = 1e-6)
 })
 
 test_that("iv_eete handles non binary instrument", {
@@ -86,6 +86,55 @@ test_that("iv_eete handles case with non binary treatment indicator", {
                        data = non_binary, indices = 1:nrow(sample_data), f_inv = crpie_inv),
                "treatment indicator must only take values 0 (treatment) or 1 (control)", fixed = TRUE)
 })
+
+
+# testing non_iv_eete
+
+# doing a manual calculation
+# filter data based on treatment
+data1 = sample_data %>%
+  dplyr::filter(!!sym("vs") == 1)
+data0 = sample_data %>%
+  dplyr::filter(!!sym("vs") == 0)
+# extract outcome variables for both groups
+yz1 = data1[["mpg"]]
+yz0 = data0[["mpg"]]
+# mean transformed outcome for both groups
+fee1 = mean(crpie(data1$mpg, gam = 1), na.rm = TRUE)
+fee0 = mean(crpie(data0$mpg, gam = 1), na.rm = TRUE)
+expected_non_iv_eete = (crpie_inv(fee1, gam = 1) - crpie_inv(fee0, gam = 1))
+
+test_that("non_iv_eete eete is correct for manual case", {
+  result <- non_iv_eete(f = crpie, gam = 1, y = "mpg", d = "vs",
+                    data = sample_data, indices = 1:nrow(sample_data),
+                    f_inv = crpie_inv, f_inv_prime = crpie_inv_prime)
+  # result[1] is the computed eete; here we compare it with our expected value
+  expect_equal(result[1], expected_non_iv_eete, tolerance = 1e-6)
+})
+
+# compute variance manually
+var_fee1 = var(crpie(yz1, gam = 1), na.rm = TRUE)/nrow(data1)
+var_fee0 = var(crpie(yz0, gam = 1), na.rm = TRUE)/nrow(data0)
+
+expected_non_iv_var = (crpie_inv_prime(fee1, gam = 1))^2 * var_fee1 + (crpie_inv_prime(fee0, gam = 1))^2 * var_fee0
+
+test_that("non_iv_eete varaince is correct for manual case", {
+  result <- non_iv_eete(f = crpie, gam = 1, y = "mpg", d = "vs",
+                        data = sample_data, indices = 1:nrow(sample_data),
+                        f_inv = crpie_inv, f_inv_prime = crpie_inv_prime)
+  # result[1] is the computed eete; here we compare it with our expected value
+  expect_equal(result[2], expected_non_iv_var, tolerance = 1e-6)
+})
+
+
+test_that("non_iv_eete handles case with non binary treatment indicator", {
+  non_binary = sample_data
+  non_binary[ , "vs"] = 2
+  expect_error(non_iv_eete(f = crpie, gam = 0.5, y = "mpg", d = "vs",
+                           data = non_binary, indices = 1:nrow(sample_data), f_inv = crpie_inv),
+               "treatment indicator must only take values 0 (treatment) or 1 (control)", fixed = TRUE)
+})
+
 
 
 

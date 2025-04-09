@@ -80,6 +80,37 @@ iv_eete = function(f, ..., y, d, z, data, indices, f_inv){
 }
 
 
+# non instrumental variable eete
+non_iv_eete = function(f, ..., y, d, data, indices, f_inv, f_inv_prime){
+  # create the option of using a bootstrap
+  bdata = data[indices,]
+  if (!all(bdata[[d]] %in% c(0, 1))) {
+    stop("treatment indicator must only take values 0 (treatment) or 1 (control)")
+  }
+  # filter data based on treatment
+  data1 = bdata %>%
+    dplyr::filter(!!sym(d) == 1)
+  data0 = bdata %>%
+    dplyr::filter(!!sym(d) == 0)
+  # extract outcome variables for both groups
+  yz1 = data1[[y]]
+  yz0 = data0[[y]]
+  # mean transformed outcome for both groups
+  fee1 = mean(f(yz1, ...), na.rm = TRUE)
+  fee0 = mean(f(yz0, ...), na.rm = TRUE)
+
+  eete = (f_inv(fee1, ...) - f_inv(fee0, ...))
+  # compute variance
+  var_fee1 = var(f(yz1, ...), na.rm = TRUE)/nrow(data1)
+  var_fee0 = var(f(yz0, ...), na.rm = TRUE)/nrow(data0)
+
+  var_eete = (f_inv_prime(fee1, ...))^2 * var_fee1 + (f_inv_prime(fee0, ...))^2 * var_fee0
+
+  return(c(eete, var_eete))
+}
+
+
+
 
 #' Estimate the Egalitarian Equivalent Treatment Effect (eete)
 #'
@@ -225,6 +256,7 @@ eete = function(f, ..., y, d, z = NULL, data, lower = 0.1, upper = 100, se = NUL
 
   }
 
+  # come back to this part
   eete = ee(data, 1:nrow(data))
 
   if (is.null(se)) {
