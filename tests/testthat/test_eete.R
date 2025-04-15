@@ -135,6 +135,32 @@ test_that("non_iv_eete handles case with non binary treatment indicator", {
                "treatment indicator must only take values 0 (treatment) or 1 (control)", fixed = TRUE)
 })
 
+# testing the eete function
+test_that("eete works for a manual calculation in non instrumental variables case with no standard error", {
+  result <- eete(f = crpie, gam = 1, y = "mpg", d = "vs",
+                    data = sample_data)
+  expect_equal(result$estimate, expected_non_iv_eete)
+})
+
+test_that("eete works for a manual calculation in instrumental variables case with no standard error", {
+  result <- eete(f = crpie, gam = 1, y = "mpg", d = "vs", z = "am",
+                 data = sample_data)
+  expect_equal(result$estimate, expected_iv_eete)
+})
+
+# testing the eete function
+test_that("eete works for a manual variance calculation in instrumental variables case with no standard error", {
+  result <- eete(f = crpie, gam = 1, y = "mpg", d = "vs", se = "theoretical",
+                 data = sample_data)
+  expect_equal(result$se, sqrt(expected_non_iv_var))
+})
+
+test_that("eete works for a manual variance calculation in instrumental variables case with no standard error", {
+  result <- eete(f = crpie, gam = 1, y = "mpg", d = "vs", se = "boot",
+                 data = sample_data)
+  expect_equal(result$se, sqrt(expected_non_iv_var))
+})
+
 
 
 

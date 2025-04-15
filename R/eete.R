@@ -1,3 +1,5 @@
+# This script contains functions for computing the egalitarian equivalent treatment effect
+
 #' Find the Inverse Function Value
 #'
 #' This function returns the inverse function value of a given function `f` for a specific value `y`,
@@ -37,7 +39,6 @@ inverse_fun = function(f, lower, upper) {
 #'
 #' @export
 
-# instrumental egalitarian equivalent function
 iv_eete = function(f, ..., y, d, z, data, indices, f_inv){
   # create the option of using a bootstrap sample
   bdata = data[indices,]
@@ -79,8 +80,23 @@ iv_eete = function(f, ..., y, d, z, data, indices, f_inv){
   return(c(eete, var_eete))
 }
 
+#' Estimate the Egalitarian Equivalent Treatment Effect (eete) with Instrumental Variables
+#'
+#' This function estimates the eete, which optional arguments to include an IV or bootstrapped SE.
+#' It applies an input function to data, conditioning on treatment (and instrument variables, if applicable).
+#'
+#' @param inputFunction A function that will be applied to the data.
+#' @param ... Additional arguments to be passed to `inputFunction`.
+#' @param y The name of the outcome variable column in `data`.
+#' @param d The name of the treatment variable column in `data`.
+#' @param data The data frame containing the variables.
+#' @param f_inv Inverse function of f
+#' @return A list containing the estimated egalitarian equivalent treatment effect and the estimated variance.
+#' @import dplyr
+#' @importFrom boot boot
+#'
+#' @export
 
-# non instrumental variable eete
 non_iv_eete = function(f, ..., y, d, data, indices, f_inv, f_inv_prime){
   # create the option of using a bootstrap
   bdata = data[indices,]
@@ -98,7 +114,7 @@ non_iv_eete = function(f, ..., y, d, data, indices, f_inv, f_inv_prime){
   # mean transformed outcome for both groups
   fee1 = mean(f(yz1, ...), na.rm = TRUE)
   fee0 = mean(f(yz0, ...), na.rm = TRUE)
-
+  # compute eete
   eete = (f_inv(fee1, ...) - f_inv(fee0, ...))
   # compute variance
   var_fee1 = var(f(yz1, ...), na.rm = TRUE)/nrow(data1)
@@ -108,8 +124,6 @@ non_iv_eete = function(f, ..., y, d, data, indices, f_inv, f_inv_prime){
 
   return(c(eete, var_eete))
 }
-
-
 
 
 #' Estimate the Egalitarian Equivalent Treatment Effect (eete)
@@ -144,147 +158,80 @@ eete = function(f, ..., y, d, z = NULL, data, lower = 0.1, upper = 100, se = NUL
     dplyr::select(!!sym(y))
   # handle a non numeric value returned by f
   if (is.character(f(data_test, ...))) {
-    eete = f(data_test, ...)
+    return(f(data_test, ...))
   }
-  else {
-    # checking if the function specified is one of the built in eete functions
-    if (any(identical(f, eete::crpie), identical(f, eete::cdpie), identical(f, eete::cpiee))) {
-      # if f_inv is specified, change to null so this can be handled by the package
-      if (!is.null(f_inv)) {
-        f_inv = NULL
-      }
-      # message for when lower and upper bounds are specified for built in functions
-      if (lower != 0.1 | upper != 100){
-        message("lower and upper parameters are options for custom functions, which require bootstrapped standard errors and uniroot inverses.
+  # checking if the function specified is one of the built in eete functions
+  if (any(identical(f, eete::crpie), identical(f, eete::cdpie), identical(f, eete::cpiee))) {
+    # if f_inv is specified, change to null so this can be handled by the package
+    if (!is.null(f_inv)) {
+      f_inv = NULL
+    }
+    # message for when lower and upper bounds are specified for built in functions
+    if (lower != 0.1 | upper != 100){
+      message("lower and upper parameters are options for custom functions, which require bootstrapped standard errors and uniroot inverses.
                 These parameters will not affect eete::crpie, eete::cdpie, or eete::cpiee functions.")
+    }
+  }
+  if (is.null(f_inv)) {
+    # assign the inverse and inverse prime functions
+    if (identical(f, eete::crpie)) {
+      f_inv = function(x, ...) eete::crpie_inv(x, ...)
+      f_inv_prime = function(x, ...) eete::crpie_inv_prime(x, ...)
+    }
+    else if (identical(f, eete::cdpie)) {
+      f_inv = function(x) eete::cdpie_inv(x, ...)
+      f_inv_prime = function(x) eete::cdpie_inv_prime(x, ...)
+    }
+    else if (identical(f, eete::cpiee)) {
+      f_inv = function(x) eete::cpiee_inv(x, ...)
+      f_inv_prime = function(x) eete::cpiee_inv_prime(x, ...)
+      # no closed form standard error for cpiee
+      if (!is.null(se)){
+        se = "boot"
+        message("No theoretical SE for cpiee, using bootstrapped SE")
       }
     }
-    if (is.null(f_inv)) {
-      # assign the inverse and inverse prime functions
-      if (identical(f, eete::crpie)) {
-        f_inv = function(x) eete::crpie_inv(x, ...)
-        f_inv_prime = function(x) eete::crpie_inv_prime(x, ...)
-      }
-      else if (identical(f, eete::cdpie)) {
-        f_inv = function(x) eete::cdpie_inv(x, ...)
-        f_inv_prime = function(x) eete::cdpie_inv_prime(x, ...)
-      }
-      else if (identical(f, eete::cpiee)) {
-        f_inv = function(x) eete::cpiee_inv(x, ...)
-        f_inv_prime = function(x) eete::cpiee_inv_prime(x, ...)
-        # no closed for standard error for cpiee
-        if (!is.null(se)){
-          se = "boot"
-          message("No theoretical SE for cpiee, using bootstrapped SE")
-        }
-      }
-      else {
-        f_inv = inverse_fun(function(x) f(x, ...), lower, upper)
-        # potential for this to be changed to generalized inverse prime function
-        f_inv_prime = function(x) x
-        # no closed form standard error for custom functions
-        if (!is.null(se)){
-          se = "boot"
-          message("No theoretical SE for custom function, using bootstrapped SE")
-        }
+    else {
+      f_inv = inverse_fun(function(x) f(x, ...), lower, upper)
+      # potential for this to be changed to generalized inverse prime function
+      f_inv_prime = function(x) x
+      # no closed form standard error for custom functions
+      if (!is.null(se)){
+        se = "boot"
+        message("No theoretical SE for custom function, using bootstrapped SE")
       }
     }
+  }
   # case where instrumental variables are specified
   if (!is.null(z)) {
-
-  ee = function(data, indices){
-
-    bdata = data[indices,]
-
-    data1 = bdata %>%
-      dplyr::filter(!!sym(z) == 1)
-
-    data0 = bdata %>%
-      dplyr::filter(!!sym(z) == 0)
-
-    yz1 = data1[[y]]
-    yz0 = data0[[y]]
-    p1 = mean(data1[[d]], na.rm = TRUE)
-    p0 = mean(data0[[d]], na.rm = TRUE)
-
-    fee_p1 = mean(f(yz1, ...), na.rm = TRUE)
-    fee_p0 = mean(f(yz0, ...), na.rm = TRUE)
-    fee1 = (((1 - p0) * fee_p1 - (1 - p1) * fee_p0) / (p1 - p0))
-    fee0 = ((p1 * fee_p0 - p0 * fee_p1) / (p1 - p0))
-
-    eete = (f_inv(fee1) - f_inv(fee0))
-
-    #INSERT VARIANCE HERE
-
-    var_eete = NULL
-
-    return(c(eete, var_eete))
+    ee = iv_eete(f = f, ..., y = y, d = d, z = z, data = data, indices = 1:nrow(data), f_inv = f_inv)
   }
-
-
-
+  # case where instrumental variables are not specified
+  else {
+    ee = non_iv_eete(f = f, ..., y = y, d = d, data = data, indices = 1:nrow(data), f_inv = f_inv, f_inv_prime = f_inv_prime)
   }
-    # case where instrumental variables are not specified
-    else {
-
-    ee = function(data, indices){
-
-      bdata = data[indices,]
-
-      data1 = bdata %>%
-        dplyr::filter(!!sym(d) == 1)
-
-      data0 = bdata %>%
-        dplyr::filter(!!sym(d) == 0)
-
-      yz1 = data1[[y]]
-      yz0 = data0[[y]]
-
-      fee1 = mean(f(yz1, ...), na.rm = TRUE)
-      fee0 = mean(f(yz0, ...), na.rm = TRUE)
-
-
-      eete = (f_inv(fee1) - f_inv(fee0))
-
-      var_fee1 = var(f(yz1, ...), na.rm = TRUE)/nrow(data1)
-      var_fee0 = var(f(yz0, ...), na.rm = TRUE)/nrow(data0)
-
-      var_eete = (f_inv_prime(fee1))^2 * var_fee1 + (f_inv_prime(fee0))^2 * var_fee0
-
-      return(c(eete, var_eete))
-    }
-
-  }
-
-  # come back to this part
-  eete = ee(data, 1:nrow(data))
-
+  # return eete if user doesn't request the standard error
   if (is.null(se)) {
-
-    eete = list(estimate = eete[1])
-
+    return(list(estimate = ee[1]))
   }
+  # return theoretical se if user requests
   else if (se == "theoretical") {
-
-
-    if (is.null(eete[2])){
+    # compute bootstrapped se if theoretical not possible
+    if (is.null(ee[2])){
       boot_results = boot::boot(data, ee, R = B)
       se = sd(boot_results$t[,1])
       message("No theoretical SE function exists. Using bootstrapped SE.")
-
-      eete = list(estimate = eete[1], se = se)
+      return(list(estimate = ee[1], se = se))
     }
+    # return theoretical se with eete
     else {
-      se = sqrt(eete[2])
-      eete = list(estimate = eete[1], se = se)
+      se = sqrt(ee[2])
+      return(list(estimate = ee[1], se = se))
     }
+  }
+  # return bootstrapped standard error if user requests
+  boot_results = boot::boot(data, ee, R = B)
+  se = sd(boot_results$t[,1])
+  return(list(estimate = ee[1], se = se))
+}
 
-  }
-  else if (se == "boot") {
-    boot_results = boot::boot(data, ee, R = B)
-    se = sd(boot_results$t[,1])
-    eete = list(estimate = eete[1], se = se)
-  }
-}
-  return(eete)
-}
