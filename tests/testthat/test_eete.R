@@ -1,10 +1,7 @@
 # testing the eete script
 library(testthat)
 library(dplyr)
-# importing the eete script, and the scripts for the evaluation functions for testing
-# source("C:/Users/jonat/OneDrive/economics_research/eete/R/eete.R")
-# source("C:/Users/jonat/OneDrive/economics_research/eete/R/crpie.R")
-# source("C:/Users/jonat/OneDrive/economics_research/eete/R/cdpie.R")
+library(boot)
 
 # testing the inverse function
 test_that("inverse_fun correctly computes inverse values", {
@@ -148,17 +145,16 @@ test_that("eete works for a manual calculation in instrumental variables case wi
   expect_equal(result$estimate, expected_iv_eete)
 })
 
-# testing the eete function
-test_that("eete works for a manual variance calculation in instrumental variables case with no standard error", {
+test_that("eete works for a manual variance calculation in instrumental variables case", {
   result <- eete(f = crpie, gam = 1, y = "mpg", d = "vs", se = "theoretical",
                  data = sample_data)
   expect_equal(result$se, sqrt(expected_non_iv_var))
 })
 
-test_that("eete works for a manual variance calculation in instrumental variables case with no standard error", {
+test_that("eete works for a manual bootstrap calculation in non instrumental variables case", {
   result <- eete(f = crpie, gam = 1, y = "mpg", d = "vs", se = "boot",
                  data = sample_data)
-  expect_equal(result$se, sqrt(expected_non_iv_var))
+  expect_equal(result$se, sqrt(expected_non_iv_var), tolerance = 0.1)
 })
 
 

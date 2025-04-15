@@ -204,34 +204,58 @@ eete = function(f, ..., y, d, z = NULL, data, lower = 0.1, upper = 100, se = NUL
   }
   # case where instrumental variables are specified
   if (!is.null(z)) {
-    ee = iv_eete(f = f, ..., y = y, d = d, z = z, data = data, indices = 1:nrow(data), f_inv = f_inv)
+    ee <- function(data, indices) {
+      iv_eete(
+        f = f,
+        ...,
+        y = y,
+        d = d,
+        z = z,
+        data = data,
+        indices = indices,
+        f_inv = f_inv,
+      )
+    }
   }
   # case where instrumental variables are not specified
   else {
-    ee = non_iv_eete(f = f, ..., y = y, d = d, data = data, indices = 1:nrow(data), f_inv = f_inv, f_inv_prime = f_inv_prime)
+    ee <- function(data, indices) {
+      non_iv_eete(
+        f = f,
+        ...,
+        y = y,
+        d = d,
+        data = data,
+        indices = indices,
+        f_inv = f_inv,
+        f_inv_prime = f_inv_prime,
+      )
+    }
   }
+
+  eete = ee(data, 1:nrow(data))
   # return eete if user doesn't request the standard error
   if (is.null(se)) {
-    return(list(estimate = ee[1]))
+    return(list(estimate = eete[1]))
   }
   # return theoretical se if user requests
-  else if (se == "theoretical") {
+  if (se == "theoretical") {
     # compute bootstrapped se if theoretical not possible
-    if (is.null(ee[2])){
-      boot_results = boot::boot(data, ee, R = B)
+    if (is.null(eete[2])){
+      boot_results <- boot::boot(data = data, statistic = ee, R = B)
       se = sd(boot_results$t[,1])
       message("No theoretical SE function exists. Using bootstrapped SE.")
-      return(list(estimate = ee[1], se = se))
+      return(list(estimate = eete[1], se = se))
     }
     # return theoretical se with eete
     else {
-      se = sqrt(ee[2])
-      return(list(estimate = ee[1], se = se))
+      se = sqrt(eete[2])
+      return(list(estimate = eete[1], se = se))
     }
   }
   # return bootstrapped standard error if user requests
-  boot_results = boot::boot(data, ee, R = B)
-  se = sd(boot_results$t[,1])
-  return(list(estimate = ee[1], se = se))
+  boot_results <- boot::boot(data = data, statistic = ee, R = B)
+  se = sd(boot_results$t[, 1], na.rm = TRUE)
+  return(list(estimate = eete[1], se = se))
 }
 
